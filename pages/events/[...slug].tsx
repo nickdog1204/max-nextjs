@@ -1,26 +1,47 @@
 import {GetServerSideProps, InferGetServerSidePropsType, NextPage} from "next";
 import {useRouter} from "next/router";
-import {getFilteredEvents} from "../../dummy-data";
 import EventList from "../../components/events/event-list";
 import {Fragment} from "react";
 import ResultsTitle from "../../components/events/results-title";
 import ErrorAlert from "../../components/ui/error-alert";
 import Button from "../../components/ui/button";
 import {IEventItem} from "../../models/events";
-import {getFilteredEventsAsync} from "../../services";
+import {getFilteredEventsAsync, getFilteredEventsWithList} from "../../services";
+import useSWR from 'swr';
 
-const FilteredEventsPage: NextPage<InferGetServerSidePropsType<typeof getServerSideProps>> = props => {
-    // const router = useRouter();
-    // const slug = router.query.slug;
-    const {filteredEvents, hasError, year, month} = props;
-    // if (!slug) {
-    //     return (
-    //         <p className='center'>Loading</p>
-    //     )
-    // }
-    // const [year, month] = (router.query.slug as string[]).map(it => +it);
+const FilteredEventsPage: NextPage = props => {
+    const router = useRouter();
+    const slug = router.query.slug;
+    const {data, error} = useSWR('https://nick-tong-yu-func-testing-default-rtdb.firebaseio.com/events.json',
+        url => fetch(url).then(it => it.json()));
+    if(!data) {
+        return <h1>讀取中!!!!!!!!!!!!!!!!</h1>
+    }
+    const transformedEvents: IEventItem[] = [];
+    for (const key in data) {
+        const val = data[key];
+        const eventItem: IEventItem = {
+            id: key,
+            date: val.date, description: val.description,
+            image: val.image, isFeatured: val.isFeatured, location: val.location, title: val.title
+        }
+        transformedEvents.push(eventItem)
+    }
+
+    // const {filteredEvents, hasError, year, month} = props;
+    if (!slug) {
+        return (
+            <p className='center'>Loadingggggggggggggggggggggggggggggggg</p>
+        )
+    }
+    const [year, month] = (router.query.slug as string[]).map(it => +it);
     if (
-        hasError
+        isNaN(year) ||
+        isNaN(month) ||
+        year > 2030 ||
+        year < 2021 ||
+        month < 0 ||
+        month > 12
     ) {
         return (
             <Fragment>
@@ -31,7 +52,7 @@ const FilteredEventsPage: NextPage<InferGetServerSidePropsType<typeof getServerS
             </Fragment>
         )
     }
-    // const filteredEvents = getFilteredEvents({year, month});
+    const filteredEvents = getFilteredEventsWithList({year, month}, transformedEvents);
     if (!filteredEvents || filteredEvents.length === 0) {
         return (
             <Fragment>
@@ -58,39 +79,39 @@ const FilteredEventsPage: NextPage<InferGetServerSidePropsType<typeof getServerS
 
 export default FilteredEventsPage;
 
-export const getServerSideProps:
-    GetServerSideProps<{
-    filteredEvents: IEventItem[] | null;
-    hasError: boolean;
-    year: number;
-    month: number;
-}> = async context => {
-    const {slug} = context.params!!;
-    const [year, month] = (slug as string[]).map(it => +it);
-    if (
-        isNaN(year) ||
-        isNaN(month) ||
-        year > 2030 ||
-        year < 2021 ||
-        month < 0 ||
-        month > 12
-    ) {
-        return {
-            props: {
-                filteredEvents: null,
-                hasError: true,
-                year,
-                month
-            }
-        }
-    }
-    const filteredEvents = await getFilteredEventsAsync({year, month});
-    return {
-        props: {
-            filteredEvents,
-            hasError: false,
-            year,
-            month
-        }
-    }
-}
+// export const getServerSideProps:
+//     GetServerSideProps<{
+//         filteredEvents: IEventItem[] | null;
+//         hasError: boolean;
+//         year: number;
+//         month: number;
+//     }> = async context => {
+//     const {slug} = context.params!!;
+//     const [year, month] = (slug as string[]).map(it => +it);
+//     if (
+//         isNaN(year) ||
+//         isNaN(month) ||
+//         year > 2030 ||
+//         year < 2021 ||
+//         month < 0 ||
+//         month > 12
+//     ) {
+//         return {
+//             props: {
+//                 filteredEvents: null,
+//                 hasError: true,
+//                 year,
+//                 month
+//             }
+//         }
+//     }
+//     const filteredEvents = await getFilteredEventsAsync({year, month});
+//     return {
+//         props: {
+//             filteredEvents,
+//             hasError: false,
+//             year,
+//             month
+//         }
+//     }
+// }

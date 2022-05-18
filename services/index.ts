@@ -26,3 +26,15 @@ export async function getFilteredEventsAsync(dateFilter: { year: number, month: 
         return eventDate.getFullYear() === year && eventDate.getMonth() === month;
     });
 }
+
+export function getFilteredEventsWithList(dateFilter: { year: number, month: number }, list: IEventItem[]) {
+    const {year, month} = dateFilter;
+
+    return list.filter((event) => {
+        const eventDate = new Date(event.date);
+        const dateFullYear = eventDate.getFullYear();
+        const dateMonth = eventDate.getMonth();
+        console.log({dateFullYear, dateMonth});
+        return eventDate.getFullYear() === year && eventDate.getMonth() === month;
+    });
+}

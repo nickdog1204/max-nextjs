@@ -6,6 +6,7 @@ import {useRouter} from "next/router";
 import {GetStaticProps, InferGetStaticPropsType, NextPage} from "next";
 import {IEventItem} from "../../models/events";
 import {fetchEventsAsync} from "../../services";
+import Head from "next/head";
 
 const AllEventsPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = props => {
     const {events} = props;
@@ -16,6 +17,13 @@ const AllEventsPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = 
     };
     return (
         <Fragment>
+            <Head>
+                <title>所有事件</title>
+                <meta
+                    name="description"
+                    content="Find a lot of great events that allow you to evolve"/>
+            </Head>
+
             <EventsSearch onFormValuesCaptured={formValuesCapturedHandler}/>
             <EventList items={events}/>
         </Fragment>

@@ -8,13 +8,15 @@ import Button from "../../components/ui/button";
 import {IEventItem} from "../../models/events";
 import {getFilteredEventsAsync, getFilteredEventsWithList} from "../../services";
 import useSWR from 'swr';
+import Head from "next/head";
+
 
 const FilteredEventsPage: NextPage = props => {
     const router = useRouter();
     const slug = router.query.slug;
     const {data, error} = useSWR('https://nick-tong-yu-func-testing-default-rtdb.firebaseio.com/events.json',
         url => fetch(url).then(it => it.json()));
-    if(!data) {
+    if (!data) {
         return <h1>讀取中!!!!!!!!!!!!!!!!</h1>
     }
     const transformedEvents: IEventItem[] = [];
@@ -27,14 +29,33 @@ const FilteredEventsPage: NextPage = props => {
         }
         transformedEvents.push(eventItem)
     }
+    let pageHeader = (
+        <Head>
+            <title>篩選後的事件</title>
+            <meta
+                name="description"
+                content="slug 讀取中"/>
+        </Head>
+    )
 
     // const {filteredEvents, hasError, year, month} = props;
     if (!slug) {
         return (
-            <p className='center'>Loadingggggggggggggggggggggggggggggggg</p>
+            <Fragment>
+                {pageHeader}
+                <p className='center'>Loadingggggggggggggggggggggggggggggggg</p>
+            </Fragment>
         )
     }
     const [year, month] = (router.query.slug as string[]).map(it => +it);
+    pageHeader = (
+        <Head>
+            <title>篩選後的事件</title>
+            <meta
+                name="description"
+                content={`All events for the month: ${month + 1}/${year}`}/>
+        </Head>
+    )
     if (
         isNaN(year) ||
         isNaN(month) ||
@@ -45,6 +66,7 @@ const FilteredEventsPage: NextPage = props => {
     ) {
         return (
             <Fragment>
+                {pageHeader}
                 <ErrorAlert>無效的篩選條件, 請重新選擇</ErrorAlert>
                 <div className='center'>
                     <Button link='/events'>觀看全部活動</Button>
@@ -56,6 +78,7 @@ const FilteredEventsPage: NextPage = props => {
     if (!filteredEvents || filteredEvents.length === 0) {
         return (
             <Fragment>
+                {pageHeader}
                 <ErrorAlert>沒有符合條件的活動</ErrorAlert>
                 <div className='center'>
                     <Button link='/events'>觀看全部</Button>
@@ -71,6 +94,7 @@ const FilteredEventsPage: NextPage = props => {
     // )
     return (
         <Fragment>
+            {pageHeader}
             <ResultsTitle date={new Date(year, month)}/>
             <EventList items={filteredEvents}/>
         </Fragment>

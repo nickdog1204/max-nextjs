@@ -5,6 +5,7 @@ import Button from "../ui/button";
 import DateIcon from "../icons/date-icon";
 import AddressIcon from "../icons/address-icon";
 import ArrowRightIcon from "../icons/arrow-right-icon";
+import Image from "next/image";
 
 const EventItem: FC<IEventItem> = props => {
     const {title, image, date, location, id} = props;
@@ -18,7 +19,7 @@ const EventItem: FC<IEventItem> = props => {
     const exploreLink = `/events/${id}`;
     return (
         <li className={classes.item}>
-            <img src={'/' + image} alt={title}/>
+            <Image width={250} height={160} src={'/' + image} alt={title}/>
             <div className={classes.content}>
                 <div className={classes.summary}>
                     <h2>{title}</h2>

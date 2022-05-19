@@ -9,6 +9,7 @@ import ErrorAlert from "../../components/ui/error-alert";
 import {ParsedUrlQuery} from "querystring";
 import {fetchEventsAsync} from "../../services";
 import {IEventItem} from "../../models/events";
+import Head from "next/head";
 
 interface IParams extends ParsedUrlQuery {
     eventId: string
@@ -47,6 +48,13 @@ const EventDetailsPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>>
     return (
         <div>
             <Fragment>
+                <Head>
+                    <title>{title}</title>
+                    <meta
+                        name="description"
+                        content={description}/>
+                </Head>
+
                 <EventSummary title={title}/>
                 <EventLogistics
                     date={date}
